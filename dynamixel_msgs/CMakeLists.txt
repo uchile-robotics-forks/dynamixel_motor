@@ -6,6 +6,7 @@ find_package(catkin REQUIRED
 
 add_message_files(
   FILES
+  ErrorCode.msg
   JointState.msg
   MotorState.msg
   MotorStateList.msg

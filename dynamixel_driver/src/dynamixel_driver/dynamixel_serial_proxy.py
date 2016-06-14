@@ -63,6 +63,8 @@ from diagnostic_msgs.msg import KeyValue
 from dynamixel_msgs.msg import MotorState
 from dynamixel_msgs.msg import MotorStateList
 
+from dynamixel_msgs.msg import ErrorCode
+
 class SerialProxy():
     def __init__(self,
                  port_name='/dev/ttyUSB0',
@@ -91,8 +93,9 @@ class SerialProxy():
         self.current_state = MotorStateList()
         self.num_ping_retries = 5
         
-        self.motor_states_pub = rospy.Publisher('motor_states/%s' % self.port_namespace, MotorStateList, queue_size=1)
-        self.diagnostics_pub = rospy.Publisher('/diagnostics', DiagnosticArray, queue_size=1)
+        self.motor_states_pub = rospy.Publisher('motor_states/%s' % self.port_namespace, MotorStateList, queue_size=100)
+        self.diagnostics_pub = rospy.Publisher('/diagnostics', DiagnosticArray, queue_size=20)
+        self.error_code_pub = rospy.Publisher('/error_code', ErrorCode, queue_size=20)
 
     def connect(self):
         try:
@@ -224,7 +227,12 @@ class SerialProxy():
                     state = self.dxl_io.get_feedback(motor_id)
                     if state:
                         motor_states.append(MotorState(**state))
-                        if dynamixel_io.exception: raise dynamixel_io.exception
+                        if dynamixel_io.exception:
+                            er = ErrorCode()
+                            er.id = dynamixel_io.global_error_code[0]
+                            er.error = dynamixel_io.global_error_code[1]
+                            self.error_code_pub.publish(er)
+                            raise dynamixel_io.exception
                 except dynamixel_io.FatalErrorCodeError, fece:
                     rospy.logerr(fece)
                 except dynamixel_io.NonfatalErrorCodeError, nfece:

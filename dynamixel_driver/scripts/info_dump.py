@@ -70,14 +70,15 @@ def print_data(values):
     Motor %(id)d is connected:
         Freespin: False
         Model ------------------- %(model)s
-        Min Angle --------------- %(min)d
-        Max Angle --------------- %(max)d
+        Min Angle (CW Limit)----- %(min)d
+        Max Angle (CCW Limit)---- %(max)d
         Current Position -------- %(position)d
         Current Speed ----------- %(speed)d
         Current Temperature ----- %(temperature)d%(degree_symbol)sC
         Current Voltage --------- %(voltage).1fv
         Current Load ------------ %(load)d
         Moving ------------------ %(moving)s
+        Torque limit ------------ %(torque_limit)d
 ''' %values
 
 if __name__ == '__main__':
@@ -118,6 +119,7 @@ if __name__ == '__main__':
                 angles = dxl_io.get_angle_limits(motor_id)
                 model = dxl_io.get_model_number(motor_id)
                 firmware = dxl_io.get_firmware_version(motor_id)
+                values['torque_limit'] = dxl_io.get_torque_limit(motor_id)
                 values['model'] = '%s (firmware version: %d)' % (DXL_MODEL_TO_PARAMS[model]['name'], firmware)
                 values['degree_symbol'] = u"\u00B0"
                 values['min'] = angles['min']
