@@ -54,14 +54,14 @@ from control_msgs.msg import FollowJointTrajectoryFeedback
 from control_msgs.msg import FollowJointTrajectoryResult
 
 
-class Segment(Object):
+class Segment(object):
     def __init__(self, num_joints):
         self.start_time = 0.0  # trajectory segment start time
         self.duration = 0.0  # trajectory segment duration
         self.positions = [0.0] * num_joints
         self.velocities = [0.0] * num_joints
 
-class JointTrajectoryActionController(Object):
+class JointTrajectoryActionController(object):
     def __init__(self, controller_namespace, controllers):
         self.update_rate = 1000
         self.state_update_rate = 50
