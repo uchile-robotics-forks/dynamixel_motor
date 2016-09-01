@@ -157,10 +157,20 @@ class SerialProxy():
         self.motor_static_info[motor_id]['min_voltage'] = voltages['min']
         self.motor_static_info[motor_id]['max_voltage'] = voltages['max']
 
+    def __check_compatible_device(self, model_number):
+        if model_number in DXL_MODEL_TO_PARAMS:
+            return False
+        else:
+            rospy.loginfo('Found Dynamixel compatible device with model number: {}'.format(model_number))
+            return True
+
     def __find_motors(self):
         rospy.loginfo('%s: Pinging motor IDs %d through %d...' % (self.port_namespace, self.min_motor_id, self.max_motor_id))
+        # Motor ids
         self.motors = []
         self.motor_static_info = {}
+        # Device ids
+        self.devices = []
         
         for motor_id in range(self.min_motor_id, self.max_motor_id + 1):
             for trial in range(self.num_ping_retries):
@@ -185,7 +195,16 @@ class SerialProxy():
             for trial in range(self.num_ping_retries):
                 try:
                     model_number = self.dxl_io.get_model_number(motor_id)
-                    self.__fill_motor_parameters(motor_id, model_number)
+                    # Check for Dynamixel compatible device
+                    if self.__check_compatible_device(model_number):
+                        # Add device to device list
+                        self.devices.append(motor_id)
+                        # Delete device from motor list
+                        to_delete_if_error.append(motor_id)
+                        break
+                    # Motor
+                    else:
+                        self.__fill_motor_parameters(motor_id, model_number)
                 except Exception as ex:
                     rospy.logerr('Exception thrown while getting attributes for motor %d - %s' % (motor_id, ex))
                     if trial == self.num_ping_retries - 1: to_delete_if_error.append(motor_id)
@@ -193,7 +212,7 @@ class SerialProxy():
                     
                 counts[model_number] += 1
                 break
-                
+        
         for motor_id in to_delete_if_error:
             self.motors.remove(motor_id)
             
@@ -210,7 +229,10 @@ class SerialProxy():
                         status_str += '%d, ' % motor_id
                         
                 status_str = status_str[:-2] + '], '
-                
+
+        # Device status message
+        rospy.loginfo('Found {} devices, ID: {}'.format(len(self.devices), self.devices))
+        # Motor status message
         rospy.loginfo('%s, initialization complete.' % status_str[:-2])
 
     def __update_motor_states(self):
