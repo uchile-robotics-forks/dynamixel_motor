@@ -896,6 +896,18 @@ class DynamixelIO(object):
             self.exception_on_error(response[4], servo_id, 'fetching supplied voltage')
         return response[5] / 10.0
 
+    def get_alarm_led(self, servo_id):
+        response = self.read(servo_id, DXL_ALARM_LED, 1)
+        if response:
+            self.exception_on_error(response[4], servo_id, 'fetching alarm led')
+        return response[5]
+
+    def get_alarm_shutdown(self, servo_id):
+        response = self.read(servo_id, DXL_ALARM_SHUTDOWN, 1)
+        if response:
+            self.exception_on_error(response[4], servo_id, 'fetching alarm shutdown')
+        return response[5]
+
     def get_current(self, servo_id):
         """ Reads the servo's current consumption (if supported by model) """
         model = self.get_model_number(servo_id)

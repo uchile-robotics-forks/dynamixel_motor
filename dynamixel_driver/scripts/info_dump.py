@@ -79,6 +79,8 @@ def print_data(values):
         Current Load ------------ %(load)d
         Moving ------------------ %(moving)s
         Torque limit ------------ %(torque_limit)d
+        Alarm shutdown ---------- %(alarm_shutdown)s
+        Alarm led --------------- %(alarm_led)s
 ''' %values
 
 if __name__ == '__main__':
@@ -120,6 +122,8 @@ if __name__ == '__main__':
                 model = dxl_io.get_model_number(motor_id)
                 firmware = dxl_io.get_firmware_version(motor_id)
                 values['torque_limit'] = dxl_io.get_torque_limit(motor_id)
+                values['alarm_led'] = '|'.join([bit2name[i-1] for i,bit in enumerate(list('{0:b}'.format(dxl_io.get_alarm_led(motor_id)))) if bit=='1'])
+                values['alarm_shutdown'] = '|'.join([bit2name[i-1] for i,bit in enumerate(list('{0:b}'.format(dxl_io.get_alarm_shutdown(motor_id)))) if bit=='1'])
                 values['model'] = '%s (firmware version: %d)' % (DXL_MODEL_TO_PARAMS[model]['name'], firmware)
                 values['degree_symbol'] = u"\u00B0"
                 values['min'] = angles['min']

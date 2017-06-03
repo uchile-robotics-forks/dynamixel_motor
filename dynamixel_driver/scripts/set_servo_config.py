@@ -78,7 +78,7 @@ if __name__ == '__main__':
     parser.add_option('--alarm-shutdown', metavar='SHUTDOWN', dest='alarm_shutdown',
                       help='set servo motor alarm shutdown')
 
-    bit2name = ['Input voltage', 'Angle limit', 'Overheating', 'Range', 'Checksum', 'Instruction', 'None']
+    bit2name = ['None', 'Instruction', 'Overload', 'Checksum', 'Range', 'Overheating', 'Angle limit', 'Input voltage']
                       
     (options, args) = parser.parse_args(sys.argv)
     print options
