@@ -49,6 +49,7 @@ import roslib
 roslib.load_manifest('dynamixel_driver')
 
 from dynamixel_driver import dynamixel_io
+from dynamixel_const import *
 
 if __name__ == '__main__':
     usage_msg = 'Usage: %prog [options] MOTOR_IDs'
@@ -68,10 +69,16 @@ if __name__ == '__main__':
                       help='set servo motor CW angle limit')
     parser.add_option('--ccw-angle-limit', type='int', metavar='CCW_ANGLE', dest='ccw_angle_limit',
                       help='set servo motor CCW angle limit')
-    parser.add_option('--min-voltage-limit', type='int', metavar='MIN_VOLTAGE', dest='min_voltage_limit',
+    parser.add_option('--min-voltage-limit', metavar='MIN_VOLTAGE', dest='min_voltage_limit',
                       help='set servo motor minimum voltage limit')
-    parser.add_option('--max-voltage-limit', type='int', metavar='MAX_VOLTAGE', dest='max_voltage_limit',
+    parser.add_option('--max-voltage-limit', metavar='MAX_VOLTAGE', dest='max_voltage_limit',
                       help='set servo motor maximum voltage limit')
+    parser.add_option('--alarm-led', metavar='LED', dest='alarm_led',
+                      help='set servo motor alarm led')
+    parser.add_option('--alarm-shutdown', metavar='SHUTDOWN', dest='alarm_shutdown',
+                      help='set servo motor alarm shutdown')
+
+    bit2name = ['Input voltage', 'Angle limit', 'Overheating', 'Range', 'Checksum', 'Instruction', 'None']
                       
     (options, args) = parser.parse_args(sys.argv)
     print options
@@ -138,7 +145,36 @@ if __name__ == '__main__':
                 if options.max_voltage_limit:
                     print 'Setting maximum voltage limit to %d' % options.max_voltage_limit
                     dxl_io.set_voltage_limit_max(motor_id, options.max_voltage_limit)
-                    
+
+                if options.alarm_shutdown:
+                	list_cmd = str(options.alarm_shutdown)
+                	if len(list_cmd) != 8:
+                		print 'Error! must have 8 bits'
+                		exit(1)
+                	for i,bit in enumerate(list_cmd):
+                		if bit == '1':
+                			print '{} [Enable]'.format(bit2name[i])
+                		elif bit == '0':
+                			print '{} [Disable]'.format(bit2name[i])
+                	cmd = int(list_cmd, 2)
+                	print 'Alarm shutdown command: {}'.format(cmd)
+                	print dxl_io.write(motor_id, DXL_ALARM_SHUTDOWN,[cmd])
+
+                if options.alarm_led:
+                	list_cmd = str(options.alarm_led)
+                	if len(list_cmd) != 8:
+                		print 'Error! must have 8 bits'
+                		exit(1)
+                	for i,bit in enumerate(list_cmd):
+                		if bit == '1':
+                			print '{} [Enable]'.format(bit2name[i])
+                		elif bit == '0':
+                			print '{} [Disable]'.format(bit2name[i])
+                	cmd = int(list_cmd, 2)
+                	print 'Alarm shutdown command: {}'.format(cmd)
+                	print dxl_io.write(motor_id, DXL_ALARM_LED,[cmd])
+
+                	
                 print 'done'
             else:
                 print 'Unable to connect to Dynamixel motor with ID %d' % motor_id
