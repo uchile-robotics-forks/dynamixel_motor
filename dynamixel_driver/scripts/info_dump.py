@@ -81,6 +81,8 @@ def print_data(values):
         Torque limit ------------ %(torque_limit)d
         Alarm shutdown ---------- %(alarm_shutdown)s
         Alarm led --------------- %(alarm_led)s
+        Voltage min ------------- %(vmin).1fv
+        Voltage max ------------- %(vmax).1fv
 ''' %values
 
 if __name__ == '__main__':
@@ -103,7 +105,8 @@ if __name__ == '__main__':
     port = options.port
     baudrate = options.baud
     motor_ids = args[1:]
-    
+    bit2name = ['None', 'Instruction', 'Overload', 'Checksum', 'Range', 'Overheating', 'Angle limit', 'Input voltage']
+
     try:
         dxl_io = dynamixel_io.DynamixelIO(port, baudrate)
     except dynamixel_io.SerialOpenError, soe:
@@ -121,9 +124,12 @@ if __name__ == '__main__':
                 angles = dxl_io.get_angle_limits(motor_id)
                 model = dxl_io.get_model_number(motor_id)
                 firmware = dxl_io.get_firmware_version(motor_id)
+                voltages = dxl_io.get_voltage_limits(motor_id)
+                values['vmax'] = voltages['max']
+                values['vmin'] = voltages['min']
                 values['torque_limit'] = dxl_io.get_torque_limit(motor_id)
-                values['alarm_led'] = '|'.join([bit2name[i-1] for i,bit in enumerate(list('{0:b}'.format(dxl_io.get_alarm_led(motor_id)))) if bit=='1'])
-                values['alarm_shutdown'] = '|'.join([bit2name[i-1] for i,bit in enumerate(list('{0:b}'.format(dxl_io.get_alarm_shutdown(motor_id)))) if bit=='1'])
+                values['alarm_led'] = '|'.join([bit2name[i] for i,bit in enumerate(list('{0:08b}'.format(dxl_io.get_alarm_led(motor_id)))) if bit=='1'])
+                values['alarm_shutdown'] = '|'.join([bit2name[i] for i,bit in enumerate(list('{0:08b}'.format(dxl_io.get_alarm_shutdown(motor_id)))) if bit=='1'])
                 values['model'] = '%s (firmware version: %d)' % (DXL_MODEL_TO_PARAMS[model]['name'], firmware)
                 values['degree_symbol'] = u"\u00B0"
                 values['min'] = angles['min']

@@ -49,7 +49,7 @@ import roslib
 roslib.load_manifest('dynamixel_driver')
 
 from dynamixel_driver import dynamixel_io
-from dynamixel_const import *
+from dynamixel_driver.dynamixel_const import *
 
 if __name__ == '__main__':
     usage_msg = 'Usage: %prog [options] MOTOR_IDs'
@@ -69,9 +69,9 @@ if __name__ == '__main__':
                       help='set servo motor CW angle limit')
     parser.add_option('--ccw-angle-limit', type='int', metavar='CCW_ANGLE', dest='ccw_angle_limit',
                       help='set servo motor CCW angle limit')
-    parser.add_option('--min-voltage-limit', metavar='MIN_VOLTAGE', dest='min_voltage_limit',
+    parser.add_option('--min-voltage-limit', type='float', metavar='MIN_VOLTAGE', dest='min_voltage_limit',
                       help='set servo motor minimum voltage limit')
-    parser.add_option('--max-voltage-limit', metavar='MAX_VOLTAGE', dest='max_voltage_limit',
+    parser.add_option('--max-voltage-limit', type='float', metavar='MAX_VOLTAGE', dest='max_voltage_limit',
                       help='set servo motor maximum voltage limit')
     parser.add_option('--alarm-led', metavar='LED', dest='alarm_led',
                       help='set servo motor alarm led')
